@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">PBIR Remap Workflow</title>
+  <desc id="desc">Workflow showing inventory export, mapping creation, dry-run review, apply, and validation.</desc>
+
+  <defs>
+    <style>
+      .title { font: 700 28px Segoe UI, Arial, sans-serif; fill: #111827; }
+      .label { font: 600 16px Segoe UI, Arial, sans-serif; fill: #111827; }
+      .small { font: 500 14px Segoe UI, Arial, sans-serif; fill: #374151; }
+      .box { fill: #ffffff; stroke: #2563eb; stroke-width: 2; rx: 12; }
+      .decision { fill: #fff7ed; stroke: #ea580c; stroke-width: 2; }
+      .artifact { fill: #f8fafc; stroke: #64748b; stroke-width: 1.8; rx: 10; }
+      .arrow { stroke: #1f2937; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .dashed { stroke-dasharray: 7 6; }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1f2937" />
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="760" fill="#f1f5f9"/>
+  <text x="600" y="50" text-anchor="middle" class="title">PBIR Field Remap Workflow</text>
+
+  <rect class="box" x="90" y="110" width="240" height="70"/>
+  <text x="210" y="153" text-anchor="middle" class="label">Export inventory</text>
+
+  <rect class="box" x="430" y="110" width="300" height="70"/>
+  <text x="580" y="153" text-anchor="middle" class="label">Create and review map.csv</text>
+
+  <rect class="box" x="810" y="110" width="300" height="70"/>
+  <text x="960" y="153" text-anchor="middle" class="label">Run dry-run remap</text>
+
+  <polygon class="decision" points="960,245 1080,315 960,385 840,315"/>
+  <text x="960" y="305" text-anchor="middle" class="label">Review</text>
+  <text x="960" y="327" text-anchor="middle" class="label">CSV outputs</text>
+
+  <rect class="box" x="810" y="455" width="300" height="70"/>
+  <text x="960" y="498" text-anchor="middle" class="label">Run apply remap</text>
+
+  <rect class="box" x="430" y="575" width="300" height="70"/>
+  <text x="580" y="618" text-anchor="middle" class="label">Open report in Power BI</text>
+
+  <rect class="box" x="90" y="575" width="240" height="70"/>
+  <text x="210" y="618" text-anchor="middle" class="label">Validate visuals</text>
+
+  <path class="arrow" d="M330 145 L430 145"/>
+  <path class="arrow" d="M730 145 L810 145"/>
+  <path class="arrow" d="M960 180 L960 243"/>
+  <path class="arrow" d="M960 386 L960 454"/>
+  <path class="arrow" d="M810 490 L730 490 L730 610"/>
+  <path class="arrow" d="M430 610 L330 610"/>
+
+  <path class="arrow dashed" d="M840 315 L610 315 L610 182"/>
+  <text x="715" y="300" class="small">Needs fixes</text>
+
+  <text x="1010" y="420" class="small">Looks good</text>
+
+  <rect class="artifact" x="60" y="250" width="220" height="52"/>
+  <text x="170" y="282" text-anchor="middle" class="small">FieldBindings.csv</text>
+
+  <rect class="artifact" x="60" y="320" width="220" height="52"/>
+  <text x="170" y="352" text-anchor="middle" class="small">AllScalars.csv</text>
+
+  <rect class="artifact" x="320" y="250" width="230" height="52"/>
+  <text x="435" y="282" text-anchor="middle" class="small">remap_dryrun.csv</text>
+
+  <rect class="artifact" x="320" y="320" width="230" height="52"/>
+  <text x="435" y="352" text-anchor="middle" class="small">remap_unresolved.csv</text>
+
+  <path class="arrow" d="M280 276 L840 300"/>
+  <path class="arrow" d="M280 346 L840 326"/>
+  <path class="arrow" d="M550 276 L840 308"/>
+  <path class="arrow" d="M550 346 L840 334"/>
+</svg>
