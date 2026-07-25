@@ -10,7 +10,7 @@ This folder contains scripts to analyze and remap semantic field references in a
   - Supports a deep recursive mode (`--scan-all-json`) for nested/unknown JSON locations.
 
 - `SKILL.md`
-  - AI skill instructions for running the remap workflow safely.
+  - AI skill instructions for running the remap workflow.
   - Defines required inputs (`report_folder`, `mapping_csv`) and command templates.
 
 - `export_report_json_inventory.py`
@@ -42,16 +42,18 @@ This folder contains scripts to analyze and remap semantic field references in a
 
 ## Quick start
 
-From this folder, run:
+From this folder, run with optional dry-run summary or apply directly:
+
+Dry-run summary:
 
 ```powershell
-python apply_field_remap.py "D:\path\to\MyReport.Report" --map "C:\path\to\map.csv" --dry-run
+python apply_field_remap.py "D:\path\to\MyReport.Report" --map "C:\path\to\map.csv" --dry-run --scan-all-json
 ```
 
-If the dry-run output looks correct, apply changes:
+Direct apply with scan-all-json:
 
 ```powershell
-python apply_field_remap.py "D:\path\to\MyReport.Report" --map "C:\path\to\map.csv" --apply
+python apply_field_remap.py "D:\path\to\MyReport.Report" --map "C:\path\to\map.csv" --apply --scan-all-json
 ```
 
 For deep coverage (recommended when visuals contain nested object expressions):
@@ -69,9 +71,9 @@ python apply_field_remap.py "D:\path\to\MyReport.Report" --map "C:\path\to\map.c
 
 By default, outputs are written to `<report_dir>/remap_output`:
 
-- `remap_dryrun.csv` (dry-run mode)
-- `remap_applied.csv` (apply mode)
-- `remap_unresolved.csv` (references not found in map)
+- `remap_dryrun.csv` (dry-run mode only)
+- `remap_applied.csv` (apply mode only)
+- `remap_unresolved.csv` (created in both dry-run and apply modes when unresolved references are found)
 
 You can override output location:
 
@@ -92,12 +94,13 @@ Default inventory output folder is `inventory_export` under the report directory
 
 ## Recommended workflow
 
-1. Export inventory (`export_report_json_inventory.py`).
-2. Build and review `map.csv`.
-3. Run remap in dry-run mode.
-4. Review `remap_dryrun.csv` and `remap_unresolved.csv`.
-5. Run remap in apply mode.
-6. Open report in Power BI Desktop and validate visuals/pages.
+1. Validate the `.Report` folder and `map.csv` path.
+2. Ask if the user wants a dry run with summary.
+3. If yes, run remap in dry-run mode:
+   `python apply_field_remap.py "<report_folder>" --map "<mapping_csv>" --dry-run --scan-all-json`
+4. If no, run remap directly with apply mode:
+   `python apply_field_remap.py "<report_folder>" --map "<mapping_csv>" --apply --scan-all-json`
+5. Open report in Power BI Desktop and validate visuals/pages.
 
 ## Using the AI skill
 

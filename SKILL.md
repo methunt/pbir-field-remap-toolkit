@@ -1,6 +1,7 @@
 ---
 name: pbir-field-remap
-description: Operational workflow for remapping PBIR field references from map.csv with mandatory dry-run and explicit approval before apply.
+description: Operational workflow for remapping PBIR field references from map.csv. Ask if the user wants a dry run summary, otherwise run with scan-all-json directly.
+repo_url: https://github.com/methunt/PowerBi/tree/main/PBIR%20Field%20Remap%20Toolkit
 ---
 
 # PBIR Field Remap Skill
@@ -8,7 +9,7 @@ description: Operational workflow for remapping PBIR field references from map.c
 ## Use this skill when
 
 - User asks to remap Power BI PBIR field references using a mapping CSV.
-- User needs dry-run/apply execution with audit CSV outputs.
+- User wants the agent to run the script directly with optional dry-run summary.
 
 ## Do not use this skill when
 
@@ -36,14 +37,12 @@ description: Operational workflow for remapping PBIR field references from map.c
 ## Defaults
 
 - `scan_all_json = true`
-- Mode order: dry-run first, apply second.
 - Output folder default: `<report_folder>/remap_output`
 
-## Safety gates (mandatory)
+## Safety gates
 
-1. Never run `--apply` before a dry-run has completed successfully.
-2. Never run `--apply` without explicit user approval.
-3. If path/header validation fails, stop and report exact issue.
+1. Validate paths and headers before running.
+2. If path/header validation fails, stop and report exact issue.
 
 ## Execution protocol
 
@@ -51,33 +50,25 @@ description: Operational workflow for remapping PBIR field references from map.c
 - `report_folder` exists and ends with `.Report`
 - `mapping_csv` exists and has required headers
 
-2. Run dry-run:
-- Use `--scan-all-json` unless user disables it.
-- Capture:
-  - changes found
-  - unresolved unique pair count
-  - output CSV paths
+2. Ask the user if they want a dry run with summary.
 
-3. Report dry-run summary to user.
+3. If the user requests dry-run:
+- Run `python apply_field_remap.py "<report_folder>" --map "<mapping_csv>" --dry-run --scan-all-json`
+- Report summary of proposed changes and unresolved pairs.
 
-4. Ask for explicit apply approval.
-
-5. If approved, run apply with same flags/options used for dry-run.
-
-6. Report apply summary:
-- files written
-- changes applied
-- output CSV paths
+4. If the user declines dry-run:
+- Run `python apply_field_remap.py "<report_folder>" --map "<mapping_csv>" --apply --scan-all-json`
+- Report that the remap was executed with scan-all-json.
 
 ## Command templates
 
-Dry-run (default recommended):
+Dry-run with summary:
 
 ```powershell
 python apply_field_remap.py "<report_folder>" --map "<mapping_csv>" --dry-run --scan-all-json
 ```
 
-Apply (only after explicit approval):
+Direct apply with scan-all-json:
 
 ```powershell
 python apply_field_remap.py "<report_folder>" --map "<mapping_csv>" --apply --scan-all-json
@@ -97,19 +88,18 @@ python apply_field_remap.py "<report_folder>" --map "<mapping_csv>" --output-dir
 
 ## Output contract (what to report)
 
-After dry-run, report:
+If dry-run is requested, report:
 
 - `changes_found`
 - `unresolved_unique_pairs`
-- `remap_dryrun.csv` path
-- `remap_unresolved.csv` path
+- `remap_dryrun.csv` path when the dry-run output file is generated
+- `remap_unresolved.csv` path when the unresolved file is generated
 
-After apply, report:
+If apply is executed, report:
 
-- `files_written`
-- `changes_applied`
-- `remap_applied.csv` path
-- `remap_unresolved.csv` path
+- that the remap run completed with scan-all-json
+- `remap_applied.csv` path when the apply output file is generated
+- `remap_unresolved.csv` path when the unresolved file is generated
 
 ## Output files
 
