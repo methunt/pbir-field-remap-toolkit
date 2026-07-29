@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 404"
+     width="1200" height="404" role="img"
+     aria-label="Captured terminal output of: python apply_field_remap.py &quot;...Report&quot; --map map.csv">
+  <style>
+    .rise  { animation: rise .55s cubic-bezier(.2,.7,.3,1) both; }
+    @keyframes rise { from { transform: translateY(9px) } to { transform: translateY(0) } }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important } }
+    .ln { animation: rise .4s cubic-bezier(.2,.7,.3,1) both; }
+  </style>
+  <rect width="1200" height="404" rx="12" fill="#F6F8FA"/>
+  <rect x="0.5" y="0.5" width="1199" height="403" rx="11.5"
+        fill="none" stroke="#D0D7DE"/>
+  <path d="M0 12a12 12 0 0 1 12-12h1176a12 12 0 0 1 12 12v28H0z" fill="#EEF1F5"/>
+  <line x1="0" y1="40" x2="1200" y2="40" stroke="#D0D7DE"/>
+  <circle cx="26" cy="20" r="5" fill="#DC2626" opacity="0.7"/>
+  <circle cx="44" cy="20" r="5" fill="#D97706" opacity="0.7"/>
+  <circle cx="62" cy="20" r="5" fill="#059669" opacity="0.7"/>
+  <!-- muted, not faint: faint (#484F58) against the dark card (#161B22) is
+       effectively invisible - checked against a rasterised preview. -->
+  <text x="600" y="25" text-anchor="middle" font-family="system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif"
+        font-size="15" fill="#656D76">captured run against a copy of this repo's own report · paths abbreviated</text>
+  <text x="30" y="72" font-family="ui-monospace,SFMono-Regular,'SF Mono',Consolas,'Liberation Mono',monospace" font-size="15.5"
+        xml:space="preserve"><tspan fill="#7C3AED" font-weight="700">$ </tspan><tspan fill="#1F2328">python apply_field_remap.py "...Report" --map map.csv</tspan></text>
+  <rect x="30" y="382" width="8" height="2" fill="#7C3AED"/>
+  <g class="ln" style="animation-delay:0.00s"><text x="30"
+        y="100" font-family="ui-monospace,SFMono-Regular,'SF Mono',Consolas,'Liberation Mono',monospace" font-size="15.5"
+        font-weight="400" fill="#D97706"
+        xml:space="preserve">Mode     : APPLY - writes report files in place, no backup</text></g>
+  <g class="ln" style="animation-delay:0.06s"><text x="30"
+        y="126" font-family="ui-monospace,SFMono-Regular,'SF Mono',Consolas,'Liberation Mono',monospace" font-size="15.5"
+        font-weight="400" fill="#656D76"
+        xml:space="preserve"></text></g>
+  <g class="ln" style="animation-delay:0.11s"><text x="30"
+        y="152" font-family="ui-monospace,SFMono-Regular,'SF Mono',Consolas,'Liberation Mono',monospace" font-size="15.5"
+        font-weight="400" fill="#656D76"
+        xml:space="preserve">Loaded 16 mapping rules (blank-To rows excluded).</text></g>
+  <g class="ln" style="animation-delay:0.17s"><text x="30"
+        y="178" font-family="ui-monospace,SFMono-Regular,'SF Mono',Consolas,'Liberation Mono',monospace" font-size="15.5"
+        font-weight="400" fill="#1F2328"
+        xml:space="preserve">Files written : 36</text></g>
+  <g class="ln" style="animation-delay:0.22s"><text x="30"
+        y="204" font-family="ui-monospace,SFMono-Regular,'SF Mono',Consolas,'Liberation Mono',monospace" font-size="15.5"
+        font-weight="700" fill="#059669"
+        xml:space="preserve">Changes applied: 119</text></g>
+  <g class="ln" style="animation-delay:0.28s"><text x="30"
+        y="230" font-family="ui-monospace,SFMono-Regular,'SF Mono',Consolas,'Liberation Mono',monospace" font-size="15.5"
+        font-weight="400" fill="#656D76"
+        xml:space="preserve">Applied CSV  : ...Report/remap_output/remap_applied.csv</text></g>
+  <g class="ln" style="animation-delay:0.33s"><text x="30"
+        y="256" font-family="ui-monospace,SFMono-Regular,'SF Mono',Consolas,'Liberation Mono',monospace" font-size="15.5"
+        font-weight="400" fill="#656D76"
+        xml:space="preserve">Unresolved refs: 71 unique pairs</text></g>
+  <g class="ln" style="animation-delay:0.39s"><text x="30"
+        y="282" font-family="ui-monospace,SFMono-Regular,'SF Mono',Consolas,'Liberation Mono',monospace" font-size="15.5"
+        font-weight="400" fill="#656D76"
+        xml:space="preserve">Unresolved CSV : ...Report/remap_output/remap_unresolved.csv</text></g>
+  <g class="ln" style="animation-delay:0.44s"><text x="30"
+        y="308" font-family="ui-monospace,SFMono-Regular,'SF Mono',Consolas,'Liberation Mono',monospace" font-size="15.5"
+        font-weight="400" fill="#656D76"
+        xml:space="preserve"></text></g>
+  <g class="ln" style="animation-delay:0.49s"><text x="30"
+        y="334" font-family="ui-monospace,SFMono-Regular,'SF Mono',Consolas,'Liberation Mono',monospace" font-size="15.5"
+        font-weight="400" fill="#7C3AED"
+        xml:space="preserve"># the deep scan is not optional: without it this map finds only 54,</text></g>
+  <g class="ln" style="animation-delay:0.55s"><text x="30"
+        y="360" font-family="ui-monospace,SFMono-Regular,'SF Mono',Consolas,'Liberation Mono',monospace" font-size="15.5"
+        font-weight="400" fill="#7C3AED"
+        xml:space="preserve"># and 62 of the 65 it would miss are inside 12 bookmark files</text></g>
+</svg>
