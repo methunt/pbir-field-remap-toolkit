@@ -1,6 +1,6 @@
 ---
 name: pbir-field-remap
-description: Operational workflow for remapping PBIR field references from map.csv. Ask if the user wants a dry run summary, otherwise run with scan-all-json directly.
+description: Operational workflow for remapping PBIR field references from map.csv. Always runs the deep recursive scan and writes changes in place; confirm source control backup before running.
 repo_url: https://github.com/methunt/PowerBi/tree/main/PBIR%20Field%20Remap%20Toolkit
 ---
 
@@ -9,7 +9,7 @@ repo_url: https://github.com/methunt/PowerBi/tree/main/PBIR%20Field%20Remap%20To
 ## Use this skill when
 
 - User asks to remap Power BI PBIR field references using a mapping CSV.
-- User wants the agent to run the script directly with optional dry-run summary.
+- User wants the agent to run the script directly and apply the remap.
 
 ## Do not use this skill when
 
@@ -32,17 +32,16 @@ repo_url: https://github.com/methunt/PowerBi/tree/main/PBIR%20Field%20Remap%20To
 ## Optional inputs
 
 - `output_dir` (optional): folder for output CSVs.
-- `scan_all_json` (optional): default `true` unless user asks otherwise.
 
 ## Defaults
 
-- `scan_all_json = true`
 - Output folder default: `<report_folder>/remap_output`
 
 ## Safety gates
 
 1. Validate paths and headers before running.
 2. If path/header validation fails, stop and report exact issue.
+3. The script writes report files in place with no backup and no preview mode. Before running, confirm with the user that `report_folder` is committed to source control (or otherwise backed up). If the user cannot confirm this, stop and do not run the script.
 
 ## Execution protocol
 
@@ -50,74 +49,52 @@ repo_url: https://github.com/methunt/PowerBi/tree/main/PBIR%20Field%20Remap%20To
 - `report_folder` exists and ends with `.Report`
 - `mapping_csv` exists and has required headers
 
-2. Ask the user if they want a dry run with summary.
+2. Confirm the report folder is committed/backed up (safety gate 3). Stop if not confirmed.
 
-3. If the user requests dry-run:
-- Run `python apply_field_remap.py "<report_folder>" --map "<mapping_csv>" --dry-run --scan-all-json`
-- Report summary of proposed changes and unresolved pairs.
-
-4. If the user declines dry-run:
-- Run `python apply_field_remap.py "<report_folder>" --map "<mapping_csv>" --apply --scan-all-json`
-- Report that the remap was executed with scan-all-json.
+3. Run the remap:
+- Run `python apply_field_remap.py "<report_folder>" --map "<mapping_csv>"`
+- Report the summary of applied changes and unresolved pairs.
 
 ## Command templates
 
-Dry-run with summary:
+Default output folder:
 
 ```powershell
-python apply_field_remap.py "<report_folder>" --map "<mapping_csv>" --dry-run --scan-all-json
+python apply_field_remap.py "<report_folder>" --map "<mapping_csv>"
 ```
 
-Direct apply with scan-all-json:
+With custom output folder:
 
 ```powershell
-python apply_field_remap.py "<report_folder>" --map "<mapping_csv>" --apply --scan-all-json
-```
-
-Dry-run with custom output folder:
-
-```powershell
-python apply_field_remap.py "<report_folder>" --map "<mapping_csv>" --output-dir "<output_dir>" --dry-run --scan-all-json
-```
-
-Apply with custom output folder:
-
-```powershell
-python apply_field_remap.py "<report_folder>" --map "<mapping_csv>" --output-dir "<output_dir>" --apply --scan-all-json
+python apply_field_remap.py "<report_folder>" --map "<mapping_csv>" --output-dir "<output_dir>"
 ```
 
 ## Output contract (what to report)
 
-If dry-run is requested, report:
+Report:
 
-- `changes_found`
+- `files_written`
+- `changes_applied`
+- `remap_applied.csv` path
 - `unresolved_unique_pairs`
-- `remap_dryrun.csv` path when the dry-run output file is generated
-- `remap_unresolved.csv` path when the unresolved file is generated
-
-If apply is executed, report:
-
-- that the remap run completed with scan-all-json
-- `remap_applied.csv` path when the apply output file is generated
-- `remap_unresolved.csv` path when the unresolved file is generated
+- `remap_unresolved.csv` path
 
 ## Output files
 
 Default output path: `<report_folder>/remap_output`
 
-- `remap_dryrun.csv`
 - `remap_applied.csv`
-- `remap_unresolved.csv`
+- `remap_unresolved.csv` (always written, header-only when there are no unresolved references; deduplicated to one row per (entity, property))
 
 ## Mapping behavior
 
 - Blank `To table` or `To col` means keep original unchanged.
 - No-op rows where From equals To are ignored.
-- Writes happen only in `--apply` mode.
+- Writes always happen — there is no preview/dry-run mode.
 
 ## Failure handling
 
 - If `.Report` folder is missing/invalid: return clear path error.
 - If `map.csv` is missing: return clear path error.
 - If headers are invalid: report required header names and stop.
-- If dry-run command fails: do not continue to apply.
+- If the user cannot confirm the report folder is backed up: stop before running.

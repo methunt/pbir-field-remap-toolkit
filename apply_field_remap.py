@@ -6,18 +6,18 @@ Reusable for any Power BI PBIR-format report. Requires only a .Report folder
 and a map.csv — no project-specific code.
 
 Usage:
-  python apply_field_remap.py <report_dir> --map <map.csv>              # dry-run (default)
-  python apply_field_remap.py <report_dir> --map <map.csv> --apply      # write changes
-  python apply_field_remap.py <report_dir> --map <map.csv> --apply --output-dir <dir>
-    python apply_field_remap.py <report_dir> --map <map.csv> --scan-all-json
+  python apply_field_remap.py <report_dir> --map <map.csv>
+  python apply_field_remap.py <report_dir> --map <map.csv> --output-dir <dir>
+
+This script always performs a deep recursive scan of every JSON file under
+<report_dir>/definition and always writes its changes in place. There is no
+preview mode and no backup is taken — commit or otherwise back up the report
+folder before running.
 
 Arguments:
   report_dir        Path to the .Report folder (must end with .Report)
   --map             Path to the mapping CSV file
-  --dry-run         Preview changes only, no files written (default)
-    --apply           Write changes to files
   --output-dir      Folder for output CSVs (default: <report_dir>/remap_output)
-    --scan-all-json   Recursively scan and remap field objects anywhere in JSON
 
 map.csv required columns:
   From Table, From col, To table, To col
@@ -26,9 +26,8 @@ map.csv required columns:
   - Rows where From == To are skipped (no-op)
 
 Outputs (written to --output-dir):
-  - remap_dryrun.csv      one row per proposed change (dry-run mode)
-  - remap_applied.csv     one row per applied change  (apply mode)
-  - remap_unresolved.csv  references not found in map (always written)
+  - remap_applied.csv     one row per applied change
+  - remap_unresolved.csv  references not found in map (always written, header-only when empty)
 
 Remapping rules:
   - SourceRef.Entity and Property updated in all field object locations:
@@ -501,7 +500,8 @@ def _walk_all_json_fields(
 ) -> None:
     """
     Recursively scan arbitrary JSON and remap field objects.
-    Used by --scan-all-json as a safety-net for unknown PBIR structures.
+    Runs on every file as a safety-net for unknown PBIR structures - notably the
+    per-visual state saved inside bookmarks, which the targeted passes never see.
     """
     if isinstance(node, dict):
         # Handle container with explicit `field` and optional `queryRef`
@@ -667,47 +667,6 @@ def classify(path: Path) -> str:
     return "other"
 
 
-def process_file(
-    file_path: Path, report_dir: Path, mapping: Mapping,
-    changes: List[Change], unresolved: List[Unresolved],
-) -> Optional[Dict]:
-    """
-    Load JSON, apply all remaps in-place, return modified data dict.
-    Returns None if file could not be parsed or is out of scope.
-    """
-    try:
-        with file_path.open("r", encoding="utf-8") as fh:
-            data = json.load(fh)
-    except (json.JSONDecodeError, OSError):
-        return None
-
-    if not isinstance(data, dict):
-        return None
-
-    file_rel = file_path.relative_to(report_dir).as_posix()
-    ctx = classify(file_path)
-
-    if ctx == "visual":
-        process_projections(file_rel, data, mapping, changes, unresolved)
-        process_sort(file_rel, data, mapping, changes, unresolved)
-        process_selectors(file_rel, data, mapping, changes, unresolved)
-        process_filter_config(file_rel, data, "visual_filter", mapping, changes, unresolved)
-
-    elif ctx == "page":
-        process_filter_config(file_rel, data, "page_filter", mapping, changes, unresolved)
-
-    elif ctx == "report":
-        process_filter_config(file_rel, data, "report_filter", mapping, changes, unresolved)
-
-    elif ctx == "bookmark":
-        process_bookmark(file_rel, data, mapping, changes, unresolved)
-
-    else:
-        return None  # skip non-binding files
-
-    return data
-
-
 # ---------------------------------------------------------------------------
 # CSV writers
 # ---------------------------------------------------------------------------
@@ -752,15 +711,13 @@ def write_unresolved_csv(rows: List[Unresolved], out_path: Path) -> None:
 def run(
     report_dir: Path,
     map_path: Path,
-    apply: bool,
     output_dir: Optional[Path] = None,
-    scan_all_json: bool = False,
 ) -> None:
     if output_dir is None:
         output_dir = report_dir / "remap_output"
     print(f"Report   : {report_dir}")
     print(f"Map      : {map_path}")
-    print(f"Mode     : {'APPLY (will write files)' if apply else 'DRY-RUN (read-only)'}")
+    print("Mode     : APPLY - writes report files in place, no backup")
     print()
 
     mapping = load_mapping(map_path)
@@ -774,8 +731,7 @@ def run(
     file_data: Dict[Path, Dict]  = {}
 
     for fp in json_files:
-        # Work on a deep copy so dry-run never mutates the original object
-        # For apply mode we'll re-parse; for now collect changes via in-place mutation on copy
+        # Work on a deep copy; only files with detected changes are written back
         try:
             with fp.open("r", encoding="utf-8") as fh:
                 original = json.load(fh)
@@ -806,32 +762,25 @@ def run(
         else:
             continue
 
-        if scan_all_json:
-            process_all_json_fields(file_rel, data_copy, mapping, all_changes)
+        process_all_json_fields(file_rel, data_copy, mapping, all_changes)
 
         if len(all_changes) > changes_before:
             file_data[fp] = data_copy  # only keep files that have changes
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    if apply:
-        written = 0
-        for fp, data in file_data.items():
-            with fp.open("w", encoding="utf-8", newline="\n") as fh:
-                json.dump(data, fh, indent=2, ensure_ascii=False)
-                fh.write("\n")
-            written += 1
+    written = 0
+    for fp, data in file_data.items():
+        with fp.open("w", encoding="utf-8", newline="\n") as fh:
+            json.dump(data, fh, indent=2, ensure_ascii=False)
+            fh.write("\n")
+        written += 1
 
-        out_csv = output_dir / "remap_applied.csv"
-        write_changes_csv(all_changes, out_csv)
-        print(f"Files written : {written}")
-        print(f"Changes applied: {len(all_changes)}")
-        print(f"Applied CSV  : {out_csv}")
-    else:
-        out_csv = output_dir / "remap_dryrun.csv"
-        write_changes_csv(all_changes, out_csv)
-        print(f"Changes found  : {len(all_changes)}")
-        print(f"Dry-run CSV    : {out_csv}")
+    out_csv = output_dir / "remap_applied.csv"
+    write_changes_csv(all_changes, out_csv)
+    print(f"Files written : {written}")
+    print(f"Changes applied: {len(all_changes)}")
+    print(f"Applied CSV  : {out_csv}")
 
     unresolved_csv = output_dir / "remap_unresolved.csv"
     write_unresolved_csv(all_unresolved, unresolved_csv)
@@ -851,14 +800,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--map", required=True, help="Path to mapping CSV file")
     parser.add_argument("--output-dir", default=None,
                         help="Folder for output CSVs (default: <report_dir>/remap_output)")
-    parser.add_argument("--scan-all-json", action="store_true", default=False,
-                        help="Recursively scan/remap field objects anywhere in JSON")
-
-    mode = parser.add_mutually_exclusive_group()
-    mode.add_argument("--dry-run", dest="dry_run", action="store_true", default=True,
-                      help="Preview changes only, do not write (default)")
-    mode.add_argument("--apply", dest="apply", action="store_true", default=False,
-                      help="Write changes to files")
 
     return parser.parse_args()
 
@@ -882,9 +823,7 @@ def main() -> int:
     run(
         report_dir,
         map_path,
-        apply=args.apply,
         output_dir=output_dir,
-        scan_all_json=args.scan_all_json,
     )
     return 0
 

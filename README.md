@@ -6,8 +6,7 @@ This folder contains scripts to analyze and remap semantic field references in a
 
 - `apply_field_remap.py`
   - Remaps report JSON field references using a CSV mapping file.
-  - Supports dry-run and apply modes.
-  - Supports a deep recursive mode (`--scan-all-json`) for nested/unknown JSON locations.
+  - Always performs a deep recursive scan of every JSON file and always writes changes in place (single mode, no dry-run).
 
 - `SKILL.md`
   - AI skill instructions for running the remap workflow.
@@ -42,43 +41,25 @@ This folder contains scripts to analyze and remap semantic field references in a
 
 ## Quick start
 
-From this folder, run with optional dry-run summary or apply directly:
+**Warning:** the script writes report files in place with no backup and no preview mode. Commit or otherwise back up the `.Report` folder before running.
 
-Dry-run summary:
-
-```powershell
-python apply_field_remap.py "D:\path\to\MyReport.Report" --map "C:\path\to\map.csv" --dry-run --scan-all-json
-```
-
-Direct apply with scan-all-json:
+From this folder:
 
 ```powershell
-python apply_field_remap.py "D:\path\to\MyReport.Report" --map "C:\path\to\map.csv" --apply --scan-all-json
+python apply_field_remap.py "D:\path\to\MyReport.Report" --map "C:\path\to\map.csv"
 ```
-
-For deep coverage (recommended when visuals contain nested object expressions):
-
-```powershell
-python apply_field_remap.py "D:\path\to\MyReport.Report" --map "C:\path\to\map.csv" --dry-run --scan-all-json
-python apply_field_remap.py "D:\path\to\MyReport.Report" --map "C:\path\to\map.csv" --apply --scan-all-json
-```
-
-## Graphical workflow
-
-![PBIR remap workflow](assets/workflow-diagram.svg)
 
 ## Output files
 
 By default, outputs are written to `<report_dir>/remap_output`:
 
-- `remap_dryrun.csv` (dry-run mode only)
-- `remap_applied.csv` (apply mode only)
-- `remap_unresolved.csv` (created in both dry-run and apply modes when unresolved references are found)
+- `remap_applied.csv`
+- `remap_unresolved.csv` (always written, header-only when no unresolved references are found)
 
 You can override output location:
 
 ```powershell
-python apply_field_remap.py "D:\path\to\MyReport.Report" --map "C:\path\to\map.csv" --output-dir "D:\temp\remap_logs" --dry-run
+python apply_field_remap.py "D:\path\to\MyReport.Report" --map "C:\path\to\map.csv" --output-dir "D:\temp\remap_logs"
 ```
 
 ## Inventory export usage
@@ -95,12 +76,10 @@ Default inventory output folder is `inventory_export` under the report directory
 ## Recommended workflow
 
 1. Validate the `.Report` folder and `map.csv` path.
-2. Ask if the user wants a dry run with summary.
-3. If yes, run remap in dry-run mode:
-   `python apply_field_remap.py "<report_folder>" --map "<mapping_csv>" --dry-run --scan-all-json`
-4. If no, run remap directly with apply mode:
-   `python apply_field_remap.py "<report_folder>" --map "<mapping_csv>" --apply --scan-all-json`
-5. Open report in Power BI Desktop and validate visuals/pages.
+2. Confirm the report folder is committed to source control (or otherwise backed up) — the script writes in place with no backup.
+3. Run the remap:
+   `python apply_field_remap.py "<report_folder>" --map "<mapping_csv>"`
+4. Open report in Power BI Desktop and validate visuals/pages.
 
 ## Using the AI skill
 
@@ -117,11 +96,11 @@ Example prompt:
 Use the PBIR field remap skill in SKILL.md.
 report_folder: D:\Project\Git\Local\dsp_refactor\Global Programmatic Dashboard\Global Programmatic.Report
 mapping_csv: C:\Users\Methun.Thirumurthy\Downloads\map.csv
-Run dry-run first with --scan-all-json and show summary.
+Run the remap and show a summary.
 ```
 
 ## Notes
 
-- The script edits JSON files in-place when `--apply` is used.
+- The script edits JSON files in-place, always.
 - No automatic backup is created by the current version.
-- Keep your own copy or use source control before apply, if needed.
+- Keep your own copy or use source control before running, if needed.
