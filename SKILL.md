@@ -1,7 +1,7 @@
 ---
 name: pbir-field-remap
 description: Operational workflow for remapping PBIR field references from map.csv. Always runs the deep recursive scan and writes changes in place; confirm source control backup before running.
-repo_url: https://github.com/methunt/PowerBi/tree/main/PBIR%20Field%20Remap%20Toolkit
+repo_url: https://github.com/methunt/pbir-field-remap-toolkit
 ---
 
 # PBIR Field Remap Skill
